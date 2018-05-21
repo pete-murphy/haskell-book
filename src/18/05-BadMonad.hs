@@ -10,7 +10,7 @@ data CountMe a =
   deriving (Eq, Show)
 
 instance Functor CountMe where
-  fmap f (CountMe i a) = CountMe (i + 1) (f a)
+  fmap f (CountMe i a) = CountMe i (f a)
 
 instance Applicative CountMe where
   pure = CountMe 0
@@ -19,8 +19,8 @@ instance Applicative CountMe where
 instance Monad CountMe where
   return = pure
   CountMe n a >>= f =
-    let CountMe _ b = f a
-     in CountMe (n + 1) b
+    let CountMe n' b = f a
+     in CountMe (n + n') b
 
 instance Arbitrary a => Arbitrary (CountMe a) where
   arbitrary = CountMe <$> arbitrary <*> arbitrary
@@ -28,6 +28,7 @@ instance Arbitrary a => Arbitrary (CountMe a) where
 instance Eq a => EqProp (CountMe a) where
   (=-=) = eq
 
+main :: IO ()
 main = do
   let trigger :: CountMe (Int, String, Int)
       trigger = undefined
