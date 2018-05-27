@@ -26,3 +26,4 @@ library
                      , text
                      , time
                      , uuid
+                     , wreq
