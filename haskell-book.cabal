@@ -19,11 +19,14 @@ library
   ghc-options:         -Wall
   build-depends:       base >= 4.7 && < 5
                      , QuickCheck
+                     , bytestring
                      , checkers
                      , containers
+                     , ghcid
                      , hspec
                      , scotty
                      , text
                      , time
+                     , transformers
                      , uuid
                      , wreq
