@@ -1,29 +1,46 @@
-module Identity where
+module Optional where
 
 import           Data.Monoid
 import           Test.QuickCheck
 import           Test.QuickCheck.Checkers
 import           Test.QuickCheck.Classes
 
-newtype Identity a =
-  Identity a
+data Optional a
+  = Nada
+  | Yep a
   deriving (Eq, Ord, Show)
 
-instance Functor Identity where
-  fmap f (Identity x) = Identity (f x)
+instance Functor Optional where
+  fmap f (Yep x) = Yep (f x)
+  fmap _ Nada    = Nada
 
-instance Foldable Identity where
-  foldr f x (Identity y) = f y x
+instance Monoid a => Monoid (Optional a) where
+  mempty = Nada
+  Yep x `mappend` Yep y = Yep (x <> y)
+  x `mappend` Nada = x
+  Nada `mappend` x = x
+  Nada `mappend` Nada = Nada
 
-instance Traversable Identity where
-  traverse f (Identity x) = Identity <$> f x
+instance Applicative Optional where
+  pure = Yep
+  Yep f <*> Yep x = Yep (f x)
+  _ <*> Nada = Nada
+  Nada <*> _ = Nada
 
-instance Arbitrary a => Arbitrary (Identity a) where
-  arbitrary = Identity <$> arbitrary
+instance Foldable Optional where
+  foldr f x (Yep y) = f y x
+  foldr _ x Nada    = x
 
-instance Eq a => EqProp (Identity a) where
+instance Traversable Optional where
+  traverse f (Yep x) = Yep <$> f x
+  traverse _ Nada    = pure Nada
+
+instance Arbitrary a => Arbitrary (Optional a) where
+  arbitrary = oneof [Yep <$> arbitrary, return Nada]
+
+instance Eq a => EqProp (Optional a) where
   (=-=) = eq
 
 main :: IO ()
 main = do
-  quickBatch $ traversable (undefined :: Identity (Sum Int, Product Int, [Int]))
+  quickBatch $ traversable (undefined :: Optional (Sum Int, Product Int, [Int]))
