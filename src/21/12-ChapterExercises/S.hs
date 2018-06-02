@@ -1,9 +1,11 @@
+{-# LANGUAGE FlexibleContexts #-}
+
 module S where
 
-import Data.Monoid
-import Test.QuickCheck
-import Test.QuickCheck.Checkers
-import Test.QuickCheck.Classes
+import           Data.Monoid
+import           Test.QuickCheck
+import           Test.QuickCheck.Checkers
+import           Test.QuickCheck.Classes
 
 data S n a =
   S (n a)
