@@ -25,6 +25,7 @@ library
                      , ghcid
                      , hedis
                      , hspec
+                     , random
                      , scotty
                      , text
                      , time
