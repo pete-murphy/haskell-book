@@ -20,3 +20,43 @@ zs = lookup 4 $ zip x y
 
 z' :: Integer -> Maybe Integer
 z' n = lookup n $ zip x z
+
+x1 :: Maybe (Integer, Integer)
+x1 = (,) <$> xs <*> ys
+
+x2 :: Maybe (Integer, Integer)
+x2 = (,) <$> ys <*> zs
+
+x3' :: (Integer, Integer) -> Maybe (Integer, Integer)
+x3' (a, b) = (,) <$> z' a <*> z' b
+
+x3 :: Integer -> (Maybe Integer, Maybe Integer)
+x3 n = (z' n, z' n)
+
+summed :: Num c => (c, c) -> c
+summed = uncurry (+)
+
+bolt :: Integer -> Bool
+bolt = (&&) <$> (> 3) <*> (< 8)
+
+sequA :: Integral a => a -> [Bool]
+sequA = sequenceA [(> 3), (< 8), even]
+
+s' :: Maybe Integer
+s' = summed <$> ((,) <$> xs <*> ys)
+
+main :: IO ()
+main = do
+  print $ sequenceA [Just 3, Just 2, Just 1]
+  print $ sequenceA [x, y]
+  print $ sequenceA [xs, ys]
+  print $ summed <$> ((,) <$> xs <*> ys)
+  print $ fmap summed ((,) <$> xs <*> zs)
+  print $ bolt 7
+  print $ fmap bolt z
+
+main' :: IO ()
+main' = do
+  print $ foldl (&&) True (sequA (3 :: Integer))
+  print $ sequA (fromMaybe 0 s')
+  print $ bolt (fromMaybe 0 ys)
