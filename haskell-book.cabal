@@ -22,6 +22,7 @@ library
                      , bytestring
                      , checkers
                      , containers
+                     , dlist
                      , ghcid
                      , hedis
                      , hspec
