@@ -31,5 +31,6 @@ library
                      , text
                      , time
                      , transformers
+                     , trifecta
                      , uuid
                      , wreq
