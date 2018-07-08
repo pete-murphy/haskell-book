@@ -26,6 +26,7 @@ library
                      , ghcid
                      , hedis
                      , hspec
+                     , parsers
                      , random
                      , scotty
                      , text
