@@ -19,13 +19,17 @@ library
   ghc-options:         -Wall
   build-depends:       base >= 4.7 && < 5
                      , QuickCheck
+                     , aeson
+                     , attoparsec
                      , bytestring
+                     , cassava
                      , checkers
                      , containers
                      , dlist
                      , ghcid
                      , hedis
                      , hspec
+                     , parsec
                      , parsers
                      , random
                      , scotty
