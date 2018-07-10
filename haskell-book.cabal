@@ -33,6 +33,7 @@ library
                      , parsers
                      , random
                      , raw-strings-qq
+                     , scientific
                      , scotty
                      , text
                      , time
