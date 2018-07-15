@@ -7,6 +7,7 @@ import           Control.Applicative
 import           Data.ByteString     (ByteString)
 import           Data.Map            (Map)
 import qualified Data.Map            as M
+import           Data.Text           hiding (count)
 import           Test.Hspec
 import           Text.RawString.QQ
 import           Text.Trifecta
@@ -37,6 +38,9 @@ data Time =
     Minute
   deriving (Eq, Ord, Show)
 
+diffInMinutes :: Time -> Time -> Minute
+diffInMinutes (T h m) (T h' m') = h' * 60 + m' - (h * 60 + m)
+
 type Hour = Int
 
 type Minute = Int
@@ -49,9 +53,8 @@ skipEOL = skipMany (oneOf "\n")
 skipComments :: Parser ()
 skipComments =
   skipMany
-    (do _ <- count 2 $ char '-'
-        skipMany (noneOf "\n")
-        skipEOL)
+    (do _ <- string "--"
+        skipMany (noneOf "\n"))
 
 skipWhiteSpace :: Parser ()
 skipWhiteSpace = skipMany $ char ' ' <|> char '\n'
@@ -63,6 +66,7 @@ parseDate = do
   month <- count 2 $ digit
   _ <- char '-'
   date <- count 2 $ digit
+  skipWhiteSpace
   skipComments
   skipEOL
   return $ D (read year) (read month) (read date)
@@ -78,10 +82,10 @@ parseLogEntry :: Parser (Time, Activity)
 parseLogEntry = do
   time <- parseTime
   _ <- char ' '
-  activity <- many $ token $ noneOf "\n-"
+  activity <- many $ noneOf "\n" <* skipComments
   skipComments
   skipEOL
-  return (time, activity)
+  return (time, unpack $ strip $ pack activity)
 
 parseLogDay :: Parser LogDay
 parseLogDay = do
@@ -103,6 +107,15 @@ twoLineEx =
 09:00 Sanitizing moisture collector
 |]
 
+fiveLineEx :: ByteString
+fiveLineEx =
+  [r|13:45 Commute home for rest
+14:15 Read
+21:00 Dinner
+21:15 Read
+22:00 Sleep
+|]
+
 logEx :: ByteString
 logEx =
   [r|
@@ -121,6 +134,22 @@ logEx =
 22:00 Sleep
 
 # 2025-02-07 -- dates not nececessarily sequential
+08:00 Breakfast -- should I try skippin bfast?
+09:00 Bumped head, passed out
+13:36 Wake up, headache
+13:37 Go to medbay
+13:40 Patch self up
+13:45 Commute home for rest
+14:15 Read
+21:00 Dinner
+21:15 Read
+22:00 Sleep
+|]
+
+logDay2Ex :: ByteString
+logDay2Ex =
+  [r|
+# 2025-02-07 -- dates not nececessarily sequential
 08:00 Brfst -- should I try skippin bfast?
 09:00 Bumped head, passed out
 13:36 Wake up, headache
@@ -131,6 +160,13 @@ logEx =
 21:00 Dinner
 21:15 Read
 22:00 Sleep
+|]
+
+logDateTwoLineEx :: ByteString
+logDateTwoLineEx =
+  [r|
+# 2025-02-07 -- dates not nececessarily sequential
+08:00 Brfst -- should I try skippin bfast?
 |]
 
 maybeSuccess :: Result a -> Maybe a
@@ -158,13 +194,19 @@ main =
             r' = maybeSuccess m
         print m
         r' `shouldBe` Just (D 2025 2 7)
-    describe "Log entry parsing" $
+    describe "Log entry parsing" $ do
       it "parses a log entry to a tuple" $ do
         let t = "08:00 Breakfast"
             m = parseByteString parseLogEntry mempty t
             r' = maybeSuccess m
         print m
         r' `shouldBe` Just ((T 8 0), "Breakfast")
+      it "parses a two-line example and ignores comment" $ do
+        let m = parseByteString (many parseLogEntry) mempty twoLineEx
+            r' = maybeSuccess m
+        print m
+        r' `shouldBe`
+          Just [(T 8 0, "Breakfast"), (T 9 0, "Sanitizing moisture collector")]
     describe "Log parsing" $
       it "parses an entire log" $ do
         let m = parseByteString parseLog mempty logEx
