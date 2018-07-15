@@ -63,6 +63,8 @@ parseDate = do
   month <- count 2 $ digit
   _ <- char '-'
   date <- count 2 $ digit
+  skipComments
+  skipEOL
   return $ D (read year) (read month) (read date)
 
 parseTime :: Parser Time
@@ -76,7 +78,8 @@ parseLogEntry :: Parser (Time, Activity)
 parseLogEntry = do
   time <- parseTime
   _ <- char ' '
-  activity <- many (noneOf "--") <* skipComments <* (noneOf "\n")
+  activity <- many $ token $ noneOf "\n-"
+  skipComments
   skipEOL
   return (time, activity)
 
@@ -84,12 +87,15 @@ parseLogDay :: Parser LogDay
 parseLogDay = do
   skipWhiteSpace
   skipComments
+  skipWhiteSpace
   date <- string "# " >> parseDate
   entries <- many parseLogEntry
   return $ LD date (M.fromList entries)
 
 parseLog :: Parser Log
-parseLog = undefined
+parseLog = do
+  log' <- many parseLogDay
+  return $ log'
 
 twoLineEx :: ByteString
 twoLineEx =
@@ -115,7 +121,7 @@ logEx =
 22:00 Sleep
 
 # 2025-02-07 -- dates not nececessarily sequential
-08:00 Breakfast -- should I try skippin bfast?
+08:00 Brfst -- should I try skippin bfast?
 09:00 Bumped head, passed out
 13:36 Wake up, headache
 13:37 Go to medbay
