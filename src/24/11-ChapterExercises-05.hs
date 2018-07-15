@@ -1,3 +1,4 @@
+{-# LANGUAGE FlexibleContexts  #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE QuasiQuotes       #-}
 
@@ -7,7 +8,7 @@ import           Control.Applicative
 import           Data.ByteString     (ByteString)
 import           Data.Map            (Map)
 import qualified Data.Map            as M
-import           Data.Text           hiding (count)
+import           Data.Text           hiding (concat, count)
 import           Test.Hspec
 import           Text.RawString.QQ
 import           Text.Trifecta
@@ -40,6 +41,13 @@ data Time =
 
 diffInMinutes :: Time -> Time -> Minute
 diffInMinutes (T h m) (T h' m') = h' * 60 + m' - (h * 60 + m)
+
+diffs :: [Integer] -> [Integer]
+diffs (x:xs) = go [] xs x
+  where
+    go acc (z:zs) y
+      | zs == [] = acc ++ [z - y]
+      | otherwise = go (acc ++ [(z - y)]) zs z
 
 type Hour = Int
 
