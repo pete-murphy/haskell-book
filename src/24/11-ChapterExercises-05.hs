@@ -14,6 +14,8 @@ import           Text.Trifecta
 
 type Log = Map Date [LogEntry]
 
+type Log' = Map Date [LogEntry']
+
 type LogEntry = (Time, Activity)
 
 type LogEntry' = (Duration, Activity)
@@ -45,6 +47,11 @@ type Duration = Minute
 
 diffInMinutes :: Time -> Time -> Minute
 diffInMinutes (T h m) (T h' m') = h' * 60 + m' - (h * 60 + m)
+
+replaceFst :: [(a, b)] -> [c] -> [(c, b)]
+replaceFst _ []          = []
+replaceFst [] _          = []
+replaceFst (t:ts) (c:cs) = (c, snd t) : replaceFst ts cs
 
 trim :: String -> String
 trim = unpack . strip . pack
@@ -92,16 +99,21 @@ parseLogEntry = do
   skipEOL
   return (time, trimEnd activity)
 
-parseLogDay :: Parser (Date, [LogEntry])
+parseLogDay :: Parser (Date, [LogEntry'])
 parseLogDay = do
   skipWhiteSpace
   skipComments
   skipWhiteSpace
   date <- string "# " >> parseDate
   entries <- many parseLogEntry
-  return $ (date, entries)
+  return $
+    let times = map fst entries
+        timesPlus = tail times ++ [(T 24 0)]
+        durations = zipWith diffInMinutes times timesPlus
+        entries' = replaceFst entries durations
+     in (date, entries')
 
-parseLog :: Parser Log
+parseLog :: Parser Log'
 parseLog = do
   log' <- many parseLogDay
   return $ M.fromList log'
@@ -213,7 +225,7 @@ main =
         r' `shouldBe`
           Just [(T 8 0, "Breakfast"), (T 9 0, "Sanitizing moisture collector")]
     describe "Log parsing" $
-      it "parses an entire log" $ do
+      it "doesn't throw an error" $ do
         let m = parseByteString parseLog mempty logEx
             r' = maybeSuccess m
         print m
