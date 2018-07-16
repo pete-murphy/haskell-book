@@ -1,4 +1,3 @@
-{-# LANGUAGE FlexibleContexts  #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE QuasiQuotes       #-}
 
@@ -40,9 +39,9 @@ type Hour = Int
 
 type Minute = Int
 
-type Duration = Minute
-
 type Activity = String
+
+type Duration = Minute
 
 diffInMinutes :: Time -> Time -> Minute
 diffInMinutes (T h m) (T h' m') = h' * 60 + m' - (h * 60 + m)
