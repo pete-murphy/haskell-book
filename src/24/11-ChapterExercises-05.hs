@@ -8,19 +8,16 @@ import           Control.Applicative
 import           Data.ByteString     (ByteString)
 import           Data.Map            (Map)
 import qualified Data.Map            as M
-import           Data.Text           hiding (concat, count)
+import           Data.Text           (pack, strip, unpack)
 import           Test.Hspec
 import           Text.RawString.QQ
 import           Text.Trifecta
 
-type Log = [LogDay]
+type Log = Map Date [LogEntry]
 
-data LogDay =
-  LD Date
-     LogEntries
-  deriving (Eq, Ord, Show)
+type LogEntry = (Time, Activity)
 
-type LogEntries = Map Time Activity
+type LogEntry' = (Duration, Activity)
 
 data Date =
   D Year
@@ -39,21 +36,22 @@ data Time =
     Minute
   deriving (Eq, Ord, Show)
 
-diffInMinutes :: Time -> Time -> Minute
-diffInMinutes (T h m) (T h' m') = h' * 60 + m' - (h * 60 + m)
-
-diffs :: [Integer] -> [Integer]
-diffs (x:xs) = go [] xs x
-  where
-    go acc (z:zs) y
-      | zs == [] = acc ++ [z - y]
-      | otherwise = go (acc ++ [(z - y)]) zs z
-
 type Hour = Int
 
 type Minute = Int
 
+type Duration = Minute
+
 type Activity = String
+
+diffInMinutes :: Time -> Time -> Minute
+diffInMinutes (T h m) (T h' m') = h' * 60 + m' - (h * 60 + m)
+
+trim :: String -> String
+trim = unpack . strip . pack
+
+trimEnd :: String -> String
+trimEnd = reverse . dropWhile (== ' ') . reverse
 
 skipEOL :: Parser ()
 skipEOL = skipMany (oneOf "\n")
@@ -93,21 +91,21 @@ parseLogEntry = do
   activity <- many $ noneOf "\n" <* skipComments
   skipComments
   skipEOL
-  return (time, unpack $ strip $ pack activity)
+  return (time, trimEnd activity)
 
-parseLogDay :: Parser LogDay
+parseLogDay :: Parser (Date, [LogEntry])
 parseLogDay = do
   skipWhiteSpace
   skipComments
   skipWhiteSpace
   date <- string "# " >> parseDate
   entries <- many parseLogEntry
-  return $ LD date (M.fromList entries)
+  return $ (date, entries)
 
 parseLog :: Parser Log
 parseLog = do
   log' <- many parseLogDay
-  return $ log'
+  return $ M.fromList log'
 
 twoLineEx :: ByteString
 twoLineEx =
@@ -157,7 +155,7 @@ logEx =
 logDay2Ex :: ByteString
 logDay2Ex =
   [r|
-# 2025-02-07 -- dates not nececessarily sequential
+# 2025-02-07 -- dates not necessarily sequential
 08:00 Brfst -- should I try skippin bfast?
 09:00 Bumped head, passed out
 13:36 Wake up, headache
@@ -173,7 +171,7 @@ logDay2Ex =
 logDateTwoLineEx :: ByteString
 logDateTwoLineEx =
   [r|
-# 2025-02-07 -- dates not nececessarily sequential
+# 2025-02-07 -- dates not necessarily sequential
 08:00 Brfst -- should I try skippin bfast?
 |]
 
