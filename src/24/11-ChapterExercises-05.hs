@@ -45,6 +45,8 @@ type Activity = String
 
 type Duration = Minute
 
+type AvgDuration = Double
+
 diffInMinutes :: Time -> Time -> Minute
 diffInMinutes (T h m) (T h' m') = h' * 60 + m' - (h * 60 + m)
 
@@ -52,6 +54,9 @@ replaceFst :: [(a, b)] -> [c] -> [(c, b)]
 replaceFst _ []          = []
 replaceFst [] _          = []
 replaceFst (t:ts) (c:cs) = (c, snd t) : replaceFst ts cs
+
+average :: [Int] -> Double
+average xs = (fromIntegral (foldr (+) 0 xs)) / (fromIntegral (length xs))
 
 trim :: String -> String
 trim = unpack . strip . pack
@@ -107,15 +112,30 @@ parseLogDay = do
   date <- string "# " >> parseDate
   entries <- many parseLogEntry
   return $
-    let times = map fst entries
-        timesPlus = tail times ++ [(T 24 0)]
-        durations = zipWith diffInMinutes times timesPlus
+    let startTimes = map fst entries
+        endTimes = tail startTimes ++ [(T 24 0)]
+        durations = zipWith diffInMinutes startTimes endTimes
         entries' = replaceFst entries durations
      in (date, entries')
+
+parseLogDayAvgTimes :: Parser (Date, Map Activity AvgDuration)
+parseLogDayAvgTimes = do
+  datedLogEntries <- parseLogDay
+  return $
+    let date = fst datedLogEntries
+        logEntriesFlipped = (\(a, b) -> (b, [a])) <$> snd datedLogEntries
+        mapEntries = M.fromListWith (++) logEntriesFlipped
+        avgEntries = average <$> mapEntries
+     in (date, avgEntries)
 
 parseLog :: Parser Log'
 parseLog = do
   log' <- many parseLogDay
+  return $ M.fromList log'
+
+parseLogAvg :: Parser (Map Date (Map Activity AvgDuration))
+parseLogAvg = do
+  log' <- many parseLogDayAvgTimes
   return $ M.fromList log'
 
 twoLineEx :: ByteString
