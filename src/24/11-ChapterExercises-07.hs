@@ -20,29 +20,30 @@ byteToInt []     = 0
 byteToInt (h:hs) = (digitToInt h) * (2 ^ length hs) + byteToInt hs
 
 blockToW64 :: [Byte] -> Word64
-blockToW64 []     = 0
-blockToW64 (b:bs) = (fromIntegral $ byteToInt b) * (16 ^ 4) ^ 2
+blockToW64 [] = 0
+blockToW64 (b:bs) =
+  (fromIntegral $ byteToInt b) * ((16 ^ 4) ^ (length bs)) + blockToW64 bs
+
+splitBlocks :: [Byte] -> ([Byte], [Byte])
+splitBlocks = splitAt 4
+
+blocksToIP6 :: ([Byte], [Byte]) -> IPAddress6
+blocksToIP6 (b1, b2) = IPAddress6 (blockToW64 b1) (blockToW64 b2)
 
 -- parseIPAddress6 :: Parser IPAddress6
-parseIPAddress6 :: Parser [[Char]]
+parseIPAddress6 :: Parser [Byte]
 parseIPAddress6 = do
-  block1 <- count 4 $ (many hexDigit) <* char ':'
-  block2 <-
-    many $ try ((many hexDigit) <* char ':') <|> ((some hexDigit) <* eof)
-  return $ (mkFull block1) ++ (mkFull block2)
-
-parseP :: Parser [[Char]]
-parseP = many $ try $ (many hexDigit) <* char ':' <|> (many hexDigit) <* eof
+  bytes <- many $ try ((many hexDigit) <* char ':') <|> ((some hexDigit) <* eof)
+  return $ mkFull bytes
 
 mkFull :: [Byte] -> [Byte]
 mkFull xs
-  | length xs == 4 = xs
+  | length xs == 8 = xs
   | otherwise = go xs []
   where
     go (y:ys) acc
-      | ys == [] = (acc ++ [y] ++ ys)
-      | length y == 0 = mkFull (acc ++ [y] ++ [[]] ++ ys)
-      | otherwise = go ys (y : acc)
+      | length y == 0 = mkFull (acc ++ (y : "" : ys))
+      | otherwise = go ys (acc ++ [y])
 
 ipEx1 :: String
 ipEx1 = "0:0:0:0:0:ffff:ac10:fe01"
