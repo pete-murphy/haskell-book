@@ -19,6 +19,11 @@ byteToInt :: Byte -> Int
 byteToInt []     = 0
 byteToInt (h:hs) = (digitToInt h) * 16 ^ (length hs) + byteToInt hs
 
+blockToInteger :: [Byte] -> Integer
+blockToInteger [] = 0
+blockToInteger (b:bs) =
+  (fromIntegral $ byteToInt b) * (16 ^ 4) ^ (length bs) + blockToInteger bs
+
 blockToW64 :: [Byte] -> Word64
 blockToW64 [] = 0
 blockToW64 (b:bs) =
@@ -30,11 +35,10 @@ splitBlocks = splitAt 4
 blocksToIP6 :: ([Byte], [Byte]) -> IPAddress6
 blocksToIP6 (b1, b2) = IPAddress6 (blockToW64 b1) (blockToW64 b2)
 
--- parseIPAddress6 :: Parser IPAddress6
-parseIPAddress6 :: Parser [Byte]
+parseIPAddress6 :: Parser IPAddress6
 parseIPAddress6 = do
   bytes <- many $ try ((many hexDigit) <* char ':') <|> ((some hexDigit) <* eof)
-  return $ mkFull bytes
+  return $ blocksToIP6 $ splitBlocks $ mkFull bytes
 
 mkFull :: [Byte] -> [Byte]
 mkFull xs
