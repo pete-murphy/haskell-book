@@ -17,12 +17,12 @@ type Byte = [Base16]
 -- rewrite both these as folds?
 byteToInt :: Byte -> Int
 byteToInt []     = 0
-byteToInt (h:hs) = (digitToInt h) * (2 ^ length hs) + byteToInt hs
+byteToInt (h:hs) = (digitToInt h) * 16 ^ (length hs) + byteToInt hs
 
 blockToW64 :: [Byte] -> Word64
 blockToW64 [] = 0
 blockToW64 (b:bs) =
-  (fromIntegral $ byteToInt b) * ((16 ^ 4) ^ (length bs)) + blockToW64 bs
+  (fromIntegral $ byteToInt b) * (16 ^ 4) ^ (length bs) + blockToW64 bs
 
 splitBlocks :: [Byte] -> ([Byte], [Byte])
 splitBlocks = splitAt 4
