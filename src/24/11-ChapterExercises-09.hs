@@ -1,4 +1,4 @@
-module ChapterExercises08 where
+module ChapterExercises09 where
 
 import           Control.Applicative
 import           Data.Char           (digitToInt, intToDigit)
@@ -29,6 +29,33 @@ parseIPAddress =
   (IPAddress .
    fromIntegral . foldl (+) 0 . zipWith (*) (((2 ^ 8) ^) <$> [0 ..]) . reverse) <$>
   parseIPList
+
+-- shortcuts!
+fromSuccess :: Result a -> a
+fromSuccess (Success x) = x
+
+fromSndIPAddr6 :: IPAddress6 -> Word64
+fromSndIPAddr6 (IPAddress6 _ w) = w
+
+ip4ToIP6 :: IPAddress -> IPAddress6
+ip4ToIP6 (IPAddress x) = IPAddress6 0 (fromIntegral x + w)
+  where
+    w =
+      (fromIntegral $
+       fromSndIPAddr6 $
+       fromSuccess $ parseString parseIPAddress6 mempty "::ffff:0:0")
+
+ip6ToIP4 :: IPAddress6 -> Maybe IPAddress
+ip6ToIP4 (IPAddress6 w w'')
+  | w > 0 = Nothing
+  | w' >= (2 ^ 32) = Nothing
+  | otherwise = Just $ IPAddress (fromIntegral w')
+  where
+    w' =
+      w'' -
+      (fromIntegral $
+       fromSndIPAddr6 $
+       fromSuccess $ parseString parseIPAddress6 mempty "::ffff:0:0")
 
 -- pretty sure this is unfold pattern
 intToList :: Integer -> [Integer]
