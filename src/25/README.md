@@ -8,4 +8,6 @@ But sometimes you want to compose monads nonetheless. Enter the _monad transform
 
 ## 25.2 Common functions as types
 
+> ... a monad transformer is a type constructor that takes a monad as an argument.
+
 
