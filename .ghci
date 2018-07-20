@@ -1,3 +1,4 @@
 :set -fwarn-unused-binds -fwarn-unused-imports
+:set -fno-warn-type-defaults
 
 :set prompt "\ESC[1;34m%s\n\ESC[0;34mλ> \ESC[m"

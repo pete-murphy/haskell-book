@@ -10,4 +10,15 @@ But sometimes you want to compose monads nonetheless. Enter the _monad transform
 
 > ... a monad transformer is a type constructor that takes a monad as an argument.
 
+## 25.3 Two little functors sittin’ in a tree, L-I-F-T-I-N-G
+
+> As with the anonymous product `(,)` and the anonymous sum `Either`, the `Compose` type allows us to express arbitrarily nested types:
+ ```haskell
+ v :: Compose []
+              Maybe
+              (Compose Maybe [] Integer)
+ v = Compose [Just (Compose $ Just [1])]
+ ```
+ The way to think about this is that the composition of two datatypes that have a `Functor` instance gives rise to a new `Functor` instance.
+
 
