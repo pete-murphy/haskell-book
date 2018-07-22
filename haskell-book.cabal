@@ -29,6 +29,7 @@ library
                      , ghcid
                      , hedis
                      , hspec
+                     , http-client
                      , parsec
                      , parsers
                      , random
