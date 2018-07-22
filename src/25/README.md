@@ -21,4 +21,8 @@ But sometimes you want to compose monads nonetheless. Enter the _monad transform
  ```
  The way to think about this is that the composition of two datatypes that have a `Functor` instance gives rise to a new `Functor` instance.
 
+## 25.6
 
+### And now for something completely different
+
+This is where `Bifunctor` is introduced.
