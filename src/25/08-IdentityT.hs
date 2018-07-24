@@ -1,4 +1,8 @@
+{-# LANGUAGE InstanceSigs #-}
+
 module IdentityT where
+
+import           Control.Monad (join)
 
 newtype Identity a = Identity
   { runIdentity :: a
@@ -28,4 +32,5 @@ instance Monad Identity where
 
 instance Monad m => Monad (IdentityT m) where
   return = pure
-  IdentityT ma >>= f = IdentityT $ ma >>= runIdentityT . f
+  (>>=) :: IdentityT m a -> (a -> IdentityT m b) -> IdentityT m b
+  IdentityT ma >>= f = IdentityT $ runIdentityT . f =<< ma
