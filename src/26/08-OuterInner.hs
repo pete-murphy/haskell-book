@@ -19,3 +19,18 @@ eitherUnwrap = runExceptT maybeUnwrap
 -- Lastly
 readerUnwrap :: () -> IO (Either String (Maybe Int))
 readerUnwrap = runReaderT eitherUnwrap
+
+readerRewrap :: ReaderT () IO (Either String (Maybe Int))
+readerRewrap = ReaderT $ runReaderT eitherUnwrap
+
+eitherRewrap :: ExceptT String (ReaderT () IO) (Maybe Int)
+eitherRewrap = ExceptT readerRewrap
+
+reEmbedded :: MaybeT (ExceptT String (ReaderT () IO)) Int
+reEmbedded = MaybeT eitherRewrap
+
+reEmbedded' :: MaybeT (ExceptT String (ReaderT () IO)) Int
+reEmbedded' = MaybeT $ ExceptT $ ReaderT $ runReaderT eitherUnwrap
+
+embedded' :: MaybeT (ExceptT String (ReaderT () IO)) Int
+embedded' = MaybeT $ ExceptT $ ReaderT $ fmap return (const (Right (Just 1)))
