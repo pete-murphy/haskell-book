@@ -22,3 +22,31 @@
   ```
   In `MyType`, the base monad is `IO`.
 
+## 26.9 MonadTrans
+
+> We often want to lift functions into a larger context. We've been doing this for  a while with `Functor`, which lifts a function into a context and applies it to the value inside. The facility to do this also undergirds `Applicative`, `Monad`, and `Traversable`. However, `fmap` isn't always enough, so we have some functions that are essentially `fmap` for different contexts:
+  ```
+  fmap  :: Functor f
+        => (a -> b) -> f a -> f b
+
+  liftA :: Applicative f
+        => (a -> b) -> f a -> f b
+
+  liftM :: Monad m
+        => (a -> r) -> m a -> m r
+  ```
+
+### The typeclass that lifts
+  `MonadTrans` is a typeclass with one core method: `lift`. Speaking generally, it is about lifting actions in some `Monad` over a transformer type which wraps itself in the original `Monad`. Fancy!
+
+???
+
+> 
+  ```haskell
+  class MonadTrans t where
+      -- / Lift a computation from
+      --   the argument monad to
+      --   the constructed monad.
+      lift :: (Monad m) => m a -> t m a
+  ```
+
