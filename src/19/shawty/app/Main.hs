@@ -1,4 +1,4 @@
-{-# LANGUAGE OverloadedString #-}
+{-# LANGUAGE OverloadedStrings #-}
 
 module Main where
 
@@ -18,7 +18,7 @@ alphaNum = ['A' .. 'Z'] ++ ['0' .. '9']
 randomElement :: String -> IO Char
 randomElement xs = do
   let maxIndex :: Int
-      maxIndex = legth xs - 1
+      maxIndex = length xs - 1
   randomDigit <- SR.randomRIO (0, maxIndex)
   return (xs !! randomDigit)
 
@@ -30,7 +30,7 @@ saveURI ::
   -> BC.ByteString
   -> BC.ByteString
   -> IO (Either R.Reply R.Status)
-saveURI conn shortURI uri = R.runRedis conn $ R.set ShortURI uri
+saveURI conn shortURI uri = R.runRedis conn $ R.set shortURI uri
 
 getURI ::
      R.Connection -> BC.ByteString -> IO (Either R.Reply (Maybe BC.ByteString))

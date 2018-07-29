@@ -4,13 +4,14 @@
   ```
   newtype ExceptT e m a =
     ExceptT { runExceptT :: m (Either e a) }
-  
+
   newtype MaybeT m a =
     MaybeT { runMaybeT :: m (Maybe a) }
 
   newtype ReaderT r m a =
     ReaderT { runReaderT :: r -> m a }
   ```
+
   A necessary byproduct of how transformers work is that the additional structure _m_ is always wrapped around our value. One thing to note is that it's only wrapped around things we can have, not things we need, such as with `ReaderT`.
 
 ???
@@ -50,3 +51,34 @@
       lift :: (Monad m) => m a -> t m a
   ```
 
+### MonadTrans instances
+
+> Now you see why we have `MonadTrans` and have a picture of what `lift`, the only method of `MonadTrans`, does.
+  Here are some examples of `MonadTrans` instances.
+
+  1. `IdentityT`
+  ```haskell
+  instance MonadTrans IdentityT where
+      lift = IdentityT
+  ```
+
+  2. `MaybeT`
+  ```haskell
+  instance MonadTrans MaybeT where
+      lift = MaybeT . liftM Just
+  ```
+
+  ```haskell
+  lift
+    :: (Monad m)
+    => m a -> t m a
+  (MaybeT . liftM Just)
+    :: Monad m
+    => m a -> MaybeT m a
+  
+  MaybeT
+    :: m (Maybe a) -> (MaybeT m a)
+  (liftM Just)
+    :: Monad m
+    => m a -> m (Maybe a)
+  ```
