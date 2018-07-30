@@ -81,6 +81,14 @@ MaybeT
   :: Monad m
   => m a -> m (Maybe a)
 ```
+Roughly speaking, this has taken an `m a` and lifted it into a `MaybeT` context.
+The general pattern with `MonadTrans` instances demonstrated by `MaybeT` is that you're usually going to lift the injection of the known structure (with `MaybeT`, the known structure is `Maybe`) over some `Monad`. Injection of structure usually means `return`, but since with `MaybeT` we know we want `Maybe` structure, we use `Just`. That transforms an `m a` into `m (T a)` where capital `T` is some concrete type you're lifting the `m a` into. Then to cap it all off, you use the data constructor for your monad transformer, and the value is now lifted into the larger context. Here's a summary of the stages the type of the value goes through.
+```haskell
+v :: Monad m => m a
+liftM Just :: Monad m => m a -> m (Maybe a)
+liftM Just v :: m (Maybe a)
+MaybeT (liftM Just v) :: MaybeT m a
+```
 
 ## 26.10 MonadIO aka zoom-zoom
 
