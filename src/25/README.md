@@ -84,3 +84,8 @@ A maybe handy example of how this plays out at term level:
   Prelude> IdentityT [1, 2, 3] >>= sumR
   IdentityT { runIdentityT = [2, 3, 4] }
   ```
+
+For example I can do:
+```
+> import Control.Monad.Trans.Except
+>

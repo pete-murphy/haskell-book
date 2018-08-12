@@ -93,3 +93,9 @@ MaybeT (liftM Just v) :: MaybeT m a
 ## 26.10 MonadIO aka zoom-zoom
 
 There's more than one way to skin a cat and there's more than one way to lift and action over additional structure. `MonadIO` is a different design than `MonadTrans` because rather than lifting through one layer at a time, `MonadIO` is intended to keep lifting your `IO` action until it is lifted over all structure embedded in the outermost `IO` type. The idea here is that you'd write `liftIO` once and it would instantiate to all of the following types:
+
+## 26.12 Monads do not commute
+
+Remember that monads in general do not commute, and you aren't guaranteed something sensible for every possible combination of types. The kit we have for constructing and using monad transformers is useful but is not a license to not think!
+
+> In mathematics, a binary operation is commutative if changing the order of the operands does not change the result.

@@ -35,6 +35,7 @@ library
                      , hedis
                      , hspec
                      , http-client
+                     , mtl
                      , parsec
                      , parsers
                      , random

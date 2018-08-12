@@ -58,11 +58,3 @@ main'' =
       liftIO $ print (a :: Either String Int)
       liftIO $ print (a' :: Int)
       html $ mconcat ["<h1>Scotty, ", beam, " me up!</h1>"]
-
-main''' =
-  scotty 3000 $ do
-    get "/:word" $ do
-      ps <- params
-      liftIO $ print ps
-      html $
-        mconcat ["<h1>Schottttttyss, ", ((show ps) :: Text), " whatttsspp?"]
