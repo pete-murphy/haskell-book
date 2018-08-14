@@ -9,6 +9,7 @@ import           Control.Monad.Trans.Reader
 embedded :: MaybeT (ExceptT String (ReaderT () IO)) Int
 embedded = return 1
 
+-- We can sort of peel away the layers one by one:
 maybeUnwrap :: ExceptT String (ReaderT () IO) (Maybe Int)
 maybeUnwrap = runMaybeT embedded
 

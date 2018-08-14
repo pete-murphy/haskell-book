@@ -14,10 +14,6 @@ cabal-version:       >=1.10
 extra-source-files:  README.md
 
 library
-  exposed-modules:     EitherT
-                     , MaybeT
-                     , ReaderT
-                     , StateT
   hs-source-dirs:      src
                      , src/26
   default-language:    Haskell2010
