@@ -31,6 +31,8 @@ library
                      , hedis
                      , hspec
                      , http-client
+                     , http-conduit
+                     , lens
                      , mtl
                      , parsec
                      , parsers
@@ -42,6 +44,7 @@ library
                      , time
                      , transformers
                      , trifecta
+                     , unordered-containers
                      , uuid
                      , wreq
                      , yesod
