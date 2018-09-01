@@ -34,4 +34,4 @@ reEmbedded' :: MaybeT (ExceptT String (ReaderT () IO)) Int
 reEmbedded' = MaybeT $ ExceptT $ ReaderT $ runReaderT eitherUnwrap
 
 embedded' :: MaybeT (ExceptT String (ReaderT () IO)) Int
-embedded' = MaybeT $ ExceptT $ ReaderT $ fmap return (const (Right (Just 1)))
+embedded' = MaybeT $ ExceptT $ ReaderT $ fmap pure (const (Right (Just 1)))
