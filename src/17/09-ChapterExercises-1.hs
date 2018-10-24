@@ -29,5 +29,5 @@ ap''' (a, f) (a', x) = (a <> a', f x)
 pure'''' :: Monoid a => b -> (a -> b)
 pure'''' = const
 
-ap'''' :: a -> (b -> c) -> (a -> b) -> (a -> c)
-ap'''' _ f g = f . g
+ap'''' :: (a -> (b -> c)) -> (a -> b) -> a -> c
+ap'''' f g = \x -> f x (g x)

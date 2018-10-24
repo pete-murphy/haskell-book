@@ -29,6 +29,7 @@ library
                      , dlist
                      , ghcid
                      , hedis
+                     , hindent
                      , hspec
                      , http-client
                      , http-conduit
@@ -46,5 +47,6 @@ library
                      , trifecta
                      , unordered-containers
                      , uuid
+                     , validation
                      , wreq
                      , yesod
