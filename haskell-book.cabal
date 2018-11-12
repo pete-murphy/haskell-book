@@ -48,5 +48,6 @@ library
                      , unordered-containers
                      , uuid
                      , validation
+                     , vector
                      , wreq
                      , yesod

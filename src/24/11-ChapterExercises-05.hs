@@ -65,7 +65,7 @@ trimEnd :: String -> String
 trimEnd = reverse . dropWhile (== ' ') . reverse
 
 skipEOL :: Parser ()
-skipEOL = skipMany (oneOf "\n")
+skipEOL = skipMany $ char '\n'
 
 skipComments :: Parser ()
 skipComments =

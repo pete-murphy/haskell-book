@@ -1,0 +1,7 @@
+## 25.1 Composing types
+
+> Functors and applicatives are both closed under composition. ... This is not true of monads.
+
+But there are times when we want to compose monads.
+
+> Composing monads allows you to build up computations with multiple effects.
