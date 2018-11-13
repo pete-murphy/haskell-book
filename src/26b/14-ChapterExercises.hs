@@ -27,6 +27,13 @@ rPrintAndInc =
     putStrLn $ "Hi: " ++ show x
     pure $ x + 1
 
+rPrintAndInc' :: (Num a, Show a) => ReaderT a IO a
+rPrintAndInc' =
+  ReaderT $ \x -> (putStrLn $ "Hi: " ++ show x) >>= \_ -> pure $ x + 1
+
 -- 6
 sPrintIncAccum :: (Num a, Show a) => StateT a IO String
-sPrintIncAccum = undefined
+sPrintIncAccum =
+  StateT $ \x -> do
+    putStrLn $ "Hi: " ++ show x
+    pure $ (show x, x + 1)
