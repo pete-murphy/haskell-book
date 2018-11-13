@@ -4,6 +4,8 @@
 
 ### How `do` syntax desugars to bind `(>>=)`
 
+This
+
 ```haskell
   (>>=) :: MaybeT m a -> (a -> MaybeT m b) -> MaybeT m b
   MaybeT ma >>= f =
@@ -24,4 +26,9 @@ desugars to
       case a of
         Nothing -> pure Nothing
         Just x  -> runMaybeT $ f x
+```
+
+And this
+
+```haskell
 ```
