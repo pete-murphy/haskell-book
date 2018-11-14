@@ -6,4 +6,4 @@ sandbox/
 tags
 ctags
 
-*.swp
+*.sw*
