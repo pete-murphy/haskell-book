@@ -1,7 +1,10 @@
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE OverloadedStrings   #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
 module HitCounter where
 
+-- import Control.Monad.Reader as R
+import           Control.Monad.IO.Class
 import           Control.Monad.Trans.Class
 import           Control.Monad.Trans.Reader
 import           Data.IORef
@@ -34,9 +37,7 @@ app =
     config <- lift ask
     let key' = mappend p' unprefixed
         p' = prefix config
-    _ <- lift $ lift $ modifyIORef (counts config) (fst . bumpBoomp key')
-    newMap <- lift $ lift $ readIORef (counts config)
-    let newInteger = fromMaybe 0 (M.lookup key' newMap)
+    newInteger <- liftIO $ atomicModifyIORef' (counts config) (bumpBoomp key')
     html $ mconcat ["<h1>", TL.pack $ show newInteger, "</h1>"]
 
 main :: IO ()
