@@ -25,5 +25,23 @@ turns n = do
       then "Computer wins"
       else "You win"
 
+turns' :: Int -> StateT (Int, Int) IO String
+turns' n =
+  replicateM
+    n
+    (do lift $ putStr "P: "
+        p' <- lift (read <$> getLine :: IO Int)
+        c' <- lift (getStdRandom $ randomR (1, 2) :: IO Int)
+        lift $ putStrLn $ "C: " ++ show c'
+        (c, p) <- get
+        if even (c' + p')
+          then put (p, c + 1)
+          else put (p + 1, c)) >>
+  get >>= \(c'', p'') ->
+    pure $
+    if c'' > p''
+      then "Computer wins"
+      else "You win"
+
 main :: IO ()
 main = runStateT (turns 3) (0, 0) >>= (putStrLn . show)

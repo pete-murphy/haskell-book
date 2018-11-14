@@ -31,4 +31,25 @@ desugars to
 And this
 
 ```haskell
+rPrintAndInc =
+  ReaderT $ \x -> do
+    putStrLn $ "Hi: " ++ show x
+    putStrLn "foo"
+    putStrLn "bar"
+    pure $ x + 1
 ```
+
+desugars to
+
+```haskell
+rPrintAndInc =
+  ReaderT $ \x ->
+    (putStrLn $ "Hi: " ++ show x) >>= \_ ->
+      putStrLn "foo" >>= \_ ->
+        putStrLn "bar" >>= \_ ->
+          pure $ x + 1
+```
+
+### Follow up for `StateT`
+
+Check out [Simple StateT use](https://wiki.haskell.org/Simple_StateT_use).
