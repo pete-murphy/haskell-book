@@ -26,6 +26,7 @@ library
                      , cassava
                      , checkers
                      , containers
+                     , criterion
                      , dlist
                      , ghcid
                      , hedis
