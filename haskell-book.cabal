@@ -47,6 +47,7 @@ library
                      , transformers
                      , trifecta
                      , unordered-containers
+                     , utf8-string
                      , uuid
                      , validation
                      , vector
