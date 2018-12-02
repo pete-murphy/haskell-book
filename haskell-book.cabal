@@ -27,6 +27,7 @@ library
                      , checkers
                      , containers
                      , criterion
+                     , directory
                      , dlist
                      , ghcid
                      , hedis
