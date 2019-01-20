@@ -14,3 +14,7 @@ ctags
 *.hi
 *.s
 *.o
+
+*.m4v
+
+.DS_Store
