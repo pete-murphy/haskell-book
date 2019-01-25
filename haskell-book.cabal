@@ -15,6 +15,7 @@ extra-source-files:  README.md
 
 library
   exposed-modules:     NewVigenere
+                     , NewVigenereIO
   hs-source-dirs:      src
                      , src/26
                      , src/29/9
