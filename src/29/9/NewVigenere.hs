@@ -19,12 +19,26 @@ ordAlpha c
   | otherwise = ord 'a'
 
 vigenere :: String -> String -> String
-vigenere key raw =
-  zipWith (\c c' -> caesar (ord c - ordAlpha c) c') (cycle key) raw
+vigenere "" raw = raw
+vigenere key raw = go "" (cycle key) raw
+  where
+    go _ "" raw' = raw'
+    go acc _ "" = reverse acc
+    go acc key' (' ':rs) = go (' ' : acc) key' rs
+    go acc (k:ks) (r:rs) = go (c : acc) ks rs
+      where
+        c = caesar (ord k - ordAlpha k) r
 
 unVigenere :: String -> String -> String
-unVigenere key encoded =
-  zipWith (\c c' -> unCaesar (ord c - ordAlpha c) c') (cycle key) encoded
+unVigenere "" enc = enc
+unVigenere key enc = go "" (cycle key) enc
+  where
+    go _ "" enc' = enc'
+    go acc _ "" = reverse acc
+    go acc key' (' ':rs) = go (' ' : acc) key' rs
+    go acc (k:ks) (r:rs) = go (c : acc) ks rs
+      where
+        c = unCaesar (ord k - ordAlpha k) r
 
 prop_caesarRoundTrip :: Property
 prop_caesarRoundTrip =
