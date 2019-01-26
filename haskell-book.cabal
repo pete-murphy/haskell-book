@@ -57,7 +57,3 @@ library
                      , vector
                      , wreq
                      , yesod
-
-executable vigenere
-  main-is: src/29/9/NewVigenereIO.hs
-  build-depends: haskell-book
