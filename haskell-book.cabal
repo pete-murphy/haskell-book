@@ -15,7 +15,6 @@ extra-source-files:  README.md
 
 library
   exposed-modules:     NewVigenere
-                     , NewVigenereIO
   hs-source-dirs:      src
                      , src/26
                      , src/29/9
@@ -58,3 +57,7 @@ library
                      , vector
                      , wreq
                      , yesod
+
+executable vigenere
+  main-is: src/29/9/NewVigenereIO.hs
+  build-depends: haskell-book
