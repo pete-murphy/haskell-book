@@ -2,12 +2,11 @@ module NewVigenereIO where
 
 import           NewVigenere        (unVigenere, vigenere)
 import           System.Environment (getArgs)
-import           System.IO          (hGetChar, hGetLine, hPutChar, hPutStrLn,
-                                     stdin, stdout)
+import           System.IO          (hGetLine, hPutStrLn, stdin, stdout)
 
 main :: IO ()
 main = do
-  [key, opt] <- getArgs
+  [opt, key] <- getArgs
   str <- hGetLine stdin
   let out
         | opt == "-e" = vigenere key str
