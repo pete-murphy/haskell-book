@@ -1,8 +1,7 @@
 module NewVigenere where
 
 import           Data.Char
-
--- import           Test.Hspec
+import           Test.Hspec
 import           Test.QuickCheck
 
 caesar :: Int -> Char -> Char
@@ -51,21 +50,21 @@ validStringGen = arbitrary `suchThat` all ((&&) <$> isLetter <*> isAscii)
 validCharGen :: Gen Char
 validCharGen = arbitrary `suchThat` ((&&) <$> isLetter <*> isAscii)
 
--- spec :: Spec
--- spec = do
---   describe "Spec test" $ do
---     it "sample input 1" $ do
---       vigenere "ALLY" "MEET AT DAWN" `shouldBe` "MPPR AE OYWY"
---     it "sample input 2" $ do
---       unVigenere "ALLY" "MPPR AE OYWY" `shouldBe` "MEET AT DAWN"
+vigenereSpec :: Spec
+vigenereSpec = do
+  describe "Spec test" $ do
+    it "vigenere encodes" $ do
+      vigenere "ALLY" "MEET AT DAWN" `shouldBe` "MPPR AE OYWY"
+    it "unVigenere decodes" $ do
+      unVigenere "ALLY" "MPPR AE OYWY" `shouldBe` "MEET AT DAWN"
+
 prop_vigenereRoundTrip :: Property
 prop_vigenereRoundTrip =
   forAll validStringGen $ \ks ->
     forAll validStringGen $ \xs -> unVigenere ks (vigenere ks xs) == xs
 
 main :: IO ()
-main
-  -- hspec spec
- = do
+main = do
+  hspec vigenereSpec
   quickCheck prop_caesarRoundTrip
   quickCheck prop_vigenereRoundTrip

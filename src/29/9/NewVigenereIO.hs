@@ -1,4 +1,4 @@
-module NewVigenereIO where
+module Main where
 
 import           NewVigenere        (unVigenere, vigenere)
 import           System.Environment (getArgs)
