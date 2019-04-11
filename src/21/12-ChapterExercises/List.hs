@@ -23,6 +23,7 @@ instance Traversable List where
   traverse _ Nil         = pure Nil
   traverse f (Cons x xs) = Cons <$> f x <*> traverse f xs
 
+-- This is wrong!
 instance Applicative List where
   pure x = Cons x Nil
   _ <*> Nil = Nil
