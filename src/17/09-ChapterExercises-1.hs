@@ -6,6 +6,7 @@ import           Data.Monoid
 pure' :: a -> [a]
 pure' = (: [])
 
+-- This is wrong!
 ap' :: [(a -> b)] -> [a] -> [b]
 ap' [] _          = []
 ap' _ []          = []
