@@ -1,5 +1,0 @@
-module IdentityIsBoring where
-
-newtype Identity a = Identity
-  { runIdentity :: a
-  }
