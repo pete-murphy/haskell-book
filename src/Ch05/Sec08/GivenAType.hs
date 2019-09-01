@@ -13,7 +13,7 @@ c'' :: b -> a -> b
 c'' = c
 
 c' :: a -> b -> b
-c' _ = id
+c' = const id
 
 r :: [a] -> [a]
 r = reverse
