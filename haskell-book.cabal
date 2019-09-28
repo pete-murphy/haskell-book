@@ -32,7 +32,6 @@ library
                      , dlist
                      , ghcid
                      , hedis
-                     , hindent
                      , hspec
                      , http-client
                      , http-conduit
