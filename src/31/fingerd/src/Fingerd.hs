@@ -8,6 +8,8 @@ module Fingerd where
 import Control.Concurrent (forkIO)
 import Control.Exception
 import Control.Monad (forever)
+import Control.Monad.IO.Class (liftIO)
+import Control.Monad.Trans.Reader (ask, ReaderT(..), runReaderT)
 import Data.ByteString (ByteString)
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Char8 as BSC
@@ -68,13 +70,16 @@ instance Exception DuplicateData
 
 type UserRow = (Null, Text, Text, Text, Text, Text)
 
-getUser :: Connection -> Text -> IO (Maybe User)
-getUser conn username = do
-  results <- query conn getUserQuery (Only username)
+type App = ReaderT Connection IO 
+
+getUser :: Text -> App (Maybe User)
+getUser username = do
+  conn <- ask
+  results <- liftIO $ query conn getUserQuery (Only username)
   case results of
     [] -> pure Nothing
     [user] -> pure (Just user)
-    _ -> throwIO DuplicateData
+    _ -> liftIO $ throwIO DuplicateData
 
 createDatabase :: IO ()
 createDatabase = do
@@ -89,12 +94,13 @@ createDatabase = do
     meRow =
       (Null, "peter", "/bin/zsh", "/Users/peter", "Pete Murphy", "800-468-3824")
 
-returnUsers :: Connection -> Socket -> IO ()
-returnUsers dbConn soc = do
-  rows <- query_ dbConn allUsers
+returnUsers :: Socket -> App ()
+returnUsers soc = do
+  dbConn <- ask
+  rows <- liftIO $ query_ dbConn allUsers
   let usernames = map username rows
       newlineSeparated = T.concat (intersperse "\n" usernames)
-  sendAll soc (encodeUtf8 newlineSeparated)
+  liftIO $ sendAll soc (encodeUtf8 newlineSeparated)
 
 formatUser :: User -> ByteString
 formatUser (User _ username shell homeDir realName _) =
@@ -115,49 +121,49 @@ formatUser (User _ username shell homeDir realName _) =
   where
     e = encodeUtf8
 
-returnUser :: Connection -> Socket -> Text -> IO ()
-returnUser dbConn soc username = do
-  maybeUser <- getUser dbConn (T.strip username)
-  case maybeUser of
+returnUser :: Socket -> Text -> App ()
+returnUser soc username = do
+  maybeUser <- getUser (T.strip username)
+  liftIO $ case maybeUser of
     Nothing -> do
       putStrLn ("Couldn't find matching user for username: " <> show username)
       sendAll
         soc
-        (BSC.pack $
+        (BSC.pack $ 
          "Couldn't find matching user for username: " <>
          T.unpack (T.strip username))
     Just user -> sendAll soc (formatUser user)
 
-handleQuery :: Connection -> Socket -> IO ()
-handleQuery dbConn soc = do
-  msg <- recv soc 1024
+handleQuery :: Socket -> App ()
+handleQuery soc = do
+  msg <- liftIO $ recv soc 1024
   case msg of
-    "\r\n" -> returnUsers dbConn soc
-    name -> returnUser dbConn soc (decodeUtf8 name)
+    "\r\n" -> returnUsers soc
+    name -> returnUser soc (decodeUtf8 name)
 
-handleInsert :: Connection -> Socket -> IO ()
-handleInsert dbConn soc = do
-  msg <- recv soc 1024
+handleInsert :: Socket -> App ()
+handleInsert soc = do
+  conn <- ask
+  msg <- liftIO $ recv soc 1024
   case T.words (decodeUtf8 msg) of
-    username:realName:_ -> execute dbConn insertUser ((Null, username, "/bin/zsh", "/Users/" <> username, realName, "800-54-GIANT") :: UserRow)
-    _ -> putStrLn "No good"
+    username:realName:_ -> liftIO $ 
+      execute conn insertUser ((Null, username, "/bin/zsh", "/Users/" <> username, realName, "800-54-GIANT") :: UserRow)
+    _ -> liftIO $ putStrLn "No good"
 
 
-handleQueries :: Connection -> Socket -> IO ()
-handleQueries dbConn sock =
-  forever do
-    (soc, _) <- accept sock
-    putStrLn "Got connection, handling query"
-    handleQuery dbConn soc
-    close soc
+handleQueries :: Socket -> App ()
+handleQueries sock = do
+    (soc, _) <- liftIO (accept sock)
+    liftIO $ putStrLn "Got connection, handling query"
+    handleQuery soc
+    liftIO (close soc)
 
-handleInserts :: Connection -> Socket -> IO ()
-handleInserts dbConn sock =
-  forever do
-    (soc, _) <- accept sock
-    putStrLn "Got connection, handling insert"
-    handleInsert dbConn soc
-    close soc
+handleInserts :: Socket -> App ()
+handleInserts sock = do
+    (soc, _) <- liftIO $ accept sock
+    liftIO $ putStrLn "Got connection, handling insert"
+    handleInsert soc
+    liftIO (close soc)
 
 main :: IO ()
 main =
@@ -179,7 +185,7 @@ main =
     bind sock2 (addrAddress serveraddr2)
     listen sock2 1
     conn <- open "finger.db"
-    _ <- forkIO do handleQueries conn sock1
-    handleInserts conn sock2
+    _ <- forkIO do forever (runReaderT (handleQueries sock1) conn)
+    runReaderT (handleInserts sock2) conn
     SQLite.close conn
     close sock1

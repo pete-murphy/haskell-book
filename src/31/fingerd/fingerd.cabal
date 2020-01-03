@@ -31,6 +31,7 @@ executable adduser
                      , raw-strings-qq
                      , sqlite-simple
                      , text
+                     , transformers
 
 executable fingerd
   ghc-options:         -Wall
@@ -40,8 +41,10 @@ executable fingerd
   other-modules:       Fingerd
   build-depends:       base >= 4.7 && < 5
                      , bytestring
+                     , hlint
                      , network
                      , raw-strings-qq
                      , sqlite-simple
                      , text
+                     , transformers
 
