@@ -185,7 +185,7 @@ main =
     bind sock2 (addrAddress serveraddr2)
     listen sock2 1
     conn <- open "finger.db"
-    _ <- forkIO do forever (runReaderT (handleQueries sock1) conn)
-    runReaderT (handleInserts sock2) conn
+    _ <- forkIO $ forever $ runReaderT (handleQueries sock1) conn
+    forever $ runReaderT (handleInserts sock2) conn
     SQLite.close conn
     close sock1
